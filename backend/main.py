@@ -1,5 +1,4 @@
-# from graph_generators import gender_graph
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -12,9 +11,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def root():
-    return {"message": "hello world"}
 
 if __name__ == "__main__":
     pass
