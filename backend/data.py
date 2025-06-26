@@ -1,10 +1,10 @@
 import pandas as pd
+from enums import SexEnum
 
 titanic_data = pd.read_csv("data/data.csv")
 
 
 passengers_count = len(titanic_data)
-
 
 # sex data
 def get_sex_data(titanic_data: pd.DataFrame) -> dict:
@@ -47,3 +47,33 @@ def get_class_data(titanic_data: pd.DataFrame):
         "percent_second_class": percents.get(2, 0.0),
         "percent_third_class": percents.get(3, 0.0),
     }
+
+def get_survived_by_sex_data(titanic_data: pd.DataFrame, sex: SexEnum) -> dict:
+    passengers_by_gender = titanic_data[titanic_data["Sex"] == sex]
+    return passengers_by_gender["Survived"].mean()
+
+def get_filtered_survivors(titanic_data: pd.DataFrame, filters: dict):
+    filtered_data = titanic_data.copy()
+    for key, value in filters.items():
+        filtered_data = filtered_data[filtered_data[key] == value]
+    
+    if filtered_data.empty:
+        return {
+            "total_passengers": 0,
+            "survivors": 0,
+            "survival_rate": 0.0,
+            "filters_applied": filters
+        }
+    
+    total_passengers = len(filtered_data)
+    survivors = filtered_data[filtered_data["Survived"] == 1]
+    survivor_count = len(survivors)
+    survival_rate = round((survivor_count / total_passengers) * 100, 2) if total_passengers > 0 else 0.0
+    
+    return {
+        "total_passengers": total_passengers,
+        "survivor_count": survivor_count,
+        "survival_rate": survival_rate,
+        "filters_applied": filters
+    }
+    
