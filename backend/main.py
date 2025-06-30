@@ -1,14 +1,28 @@
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import ValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from transformers import FeatureImputer, FeatureEncoder 
 from enums import SexEnum, PClassEnum
 from typing import Optional
-from models import FilteredSurvivorsResponse
+from models import FilteredSurvivorsResponse, PredictionInput
 import pandas as pd
 from data import get_filtered_survivors
+import pickle
 
 app = FastAPI()
 titanic_data = pd.read_csv("data/data.csv")
+
+model = None
+
+def load_model():
+    global model
+    if model is None:
+        print("Loading model...")
+        with open("model.pkl", "rb") as f:
+            model= pickle.load(f)
+        print("Model loaded!")
+    return model
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,6 +31,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/api/predict")
+def predict(data: PredictionInput):
+    model = load_model()
+    df = pd.DataFrame([data.model_dump()])
+    prediction = model.predict_proba(df)[:, 1]
+    return {"survival_chance": round(prediction[0] * 100, 2)}
+
 
 @app.get("/api/survivors")
 def filtered_survival_stats(

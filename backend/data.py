@@ -76,4 +76,3 @@ def get_filtered_survivors(titanic_data: pd.DataFrame, filters: dict):
         "survival_rate": survival_rate,
         "filters_applied": filters
     }
-    
