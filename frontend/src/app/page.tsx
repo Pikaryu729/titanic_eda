@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { PieChart } from "@/components/PieChart";
+import SurvivalPredictForm from "@/components/SurvivalPredictForm";
 import { Loader2, Ship, Users, TrendingUp } from "lucide-react";
 import { PieChartData } from "@/types/piechart";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -237,6 +238,15 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
+
+        <Card className="mt-8 shadow-lg border-0 ">
+          <CardTitle className="text-center text-4xl">
+            Would you have survived?
+          </CardTitle>
+          <CardContent>
+            <SurvivalPredictForm />
+          </CardContent>
+        </Card>
 
         {/* Info Section */}
         <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-blue-50 to-indigo-50">

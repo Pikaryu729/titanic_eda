@@ -94,22 +94,22 @@ export const PieChart: React.FC<PieChartProps> = ({
     arcs
       .append("path")
       .attr("d", arc)
-      .attr("fill", (d, i) => colors[i % colors.length])
+      .attr("fill", (_, i) => colors[i % colors.length])
       .attr("stroke", "white")
       .attr("stroke-width", 2)
       .style("cursor", onSliceClick ? "pointer" : "default")
-      .on("click", function (event, d) {
+      .on("click", function (d) {
         if (onSliceClick) {
           onSliceClick(d.data.label, d.data.value, d.index);
         }
       })
-      .on("mouseover", function (event, d) {
+      .on("mouseover", function () {
         d3.select(this)
           .transition()
           .duration(200)
           .attr("transform", "scale(1.05)");
       })
-      .on("mouseout", function (event, d) {
+      .on("mouseout", function () {
         d3.select(this)
           .transition()
           .duration(200)
