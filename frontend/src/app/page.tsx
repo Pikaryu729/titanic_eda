@@ -73,7 +73,7 @@ export default function Home() {
         if (sexFilter !== "all") params.append("sex", sexFilter);
         if (pClassFilter !== "all") params.append("p_class", pClassFilter);
         const response = await fetch(
-          `http://150.136.59.52/api/survivors?${params.toString()}`
+          `http://150.136.59.52:8000/api/survivors?${params.toString()}`
         );
         const result = await response.json();
 
