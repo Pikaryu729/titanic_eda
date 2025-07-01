@@ -1,29 +1,33 @@
-# Use Python 3.12 slim as base image
-FROM python:3.12-slim
+# Multi-stage build
+FROM python:3.12-slim as python-builder
 
-# Set working directory inside the container
 WORKDIR /app
-
-# Install uv package manager
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 RUN pip install uv
-
-# Copy dependency files first (for better caching)
 COPY pyproject.toml uv.lock ./
-
-# Install Python dependencies using uv
 RUN uv sync --frozen --no-dev
-
-# Copy all application files
 COPY . .
 
-# Create SSL directory and generate self-signed certificates
-RUN mkdir -p /app/ssl && \
-    openssl req -x509 -newkey rsa:4096 -keyout /app/ssl/key.pem -out /app/ssl/cert.pem -days 365 -nodes \
-    -subj "/C=US/ST=State/L=City/O=Organization/CN=150.136.59.32"
+# Final stage with Caddy
+FROM caddy:2-alpine
 
-# Expose ports 80 and 443
+# Install Python
+RUN apk add --no-cache python3 py3-pip
+
+# Copy Python app and dependencies from builder
+COPY --from=python-builder /app /app
+COPY --from=python-builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=python-builder /usr/local/bin/uv /usr/local/bin/uv
+
+# Create Caddyfile for automatic HTTPS
+RUN echo "api.ryushinwells.com {\n    reverse_proxy localhost:8000\n}" > /etc/caddy/Caddyfile
+
+# Create startup script
+RUN echo '#!/bin/sh' > /start.sh && \
+    echo 'cd /app && uv run uvicorn main:app --host 127.0.0.1 --port 8000 &' >> /start.sh && \
+    echo 'caddy run --config /etc/caddy/Caddyfile --adapter caddyfile' >> /start.sh && \
+    chmod +x /start.sh
+
 EXPOSE 80 443
 
-# Run the FastAPI application with SSL
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "/app/ssl/key.pem", "--ssl-certfile", "/app/ssl/cert.pem"]
+CMD ["/start.sh"]
