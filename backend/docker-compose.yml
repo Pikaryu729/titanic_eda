@@ -1,35 +1,21 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  # Caddy reverse proxy with automatic HTTPS
-  caddy:
-    image: caddy:latest
-    container_name: caddy-proxy
+  nginx:
+    image: nginx:alpine
     ports:
-      - "80:80" # HTTP (redirects to HTTPS)
-      - "443:443" # HTTPS
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
     depends_on:
-      - fastapi
+      - app
     restart: unless-stopped
 
-  # Your FastAPI application
-  fastapi:
-    build: . # Uses your existing Dockerfile
-    container_name: fastapi-app
-    # Remove ports mapping - only accessible through Caddy
-    # ports:
-    #   - "8000:8000"
-    environment:
-      - PYTHONUNBUFFERED=1
+  app:
+    build: .
+    # Don't expose ports externally - only nginx needs access
+    expose:
+      - "8000"  # FastAPI default port
     restart: unless-stopped
-    # Optional: add volumes for persistent data
-    # volumes:
-    #   - ./data:/app/data
-
-volumes:
-  caddy_data:
-  caddy_config:
