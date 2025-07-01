@@ -26,7 +26,14 @@ def load_model():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://localhost:3000",
+        "https://titanic-eda.vercel.app",
+        "https://ryushinwells.com",
+        "https://titanic-eda-ryus-projects-33e7a349.vercel.app",
+        "https://titanic-eda-git-master-ryus-projects-33e7a349.vercel.app"
+        ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

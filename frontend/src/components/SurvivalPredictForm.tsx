@@ -48,7 +48,7 @@ export default function SurvivalPredictForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await fetch("https://129.158.43.35/api/predict", {
+      const res = await fetch("https://129.153.180.132/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
